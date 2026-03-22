@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doomsday KB — Features</title>
+<style>
+/* ============================================
+   RESET & BASE
+   ============================================ */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-deep: #0A0A0F;
+  --bg-mid: #12121A;
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-bg-hover: rgba(255, 255, 255, 0.07);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(255, 255, 255, 0.14);
+  --glass-inset: rgba(255, 255, 255, 0.06);
+  --glass-shadow: 0 4px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --glass-shadow-hover: 0 8px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --text-primary: rgba(255, 255, 255, 0.95);
+  --text-secondary: rgba(255, 255, 255, 0.55);
+  --text-tertiary: rgba(255, 255, 255, 0.35);
+  --accent-amber: #f59e0b;
+  --accent-amber-dim: rgba(245, 158, 11, 0.15);
+  --accent-indigo: #6366f1;
+  --accent-indigo-dim: rgba(99, 102, 241, 0.12);
+  --radius: 16px;
+  --gap: 14px;
+  --transition: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html {
+  font-family: -apple-system, "Inter", "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--text-primary);
+  background: var(--bg-deep);
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(168deg, var(--bg-deep) 0%, var(--bg-mid) 40%, #0d0d16 100%);
+  overflow-x: hidden;
+}
+
+/* ============================================
+   SECTION WRAPPER
+   ============================================ */
+.features-section {
+  position: relative;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 80px 24px 120px;
+}
+
+.features-header {
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.features-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-amber);
+  background: var(--accent-amber-dim);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 999px;
+  margin-bottom: 20px;
+}
+
+.features-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.features-title {
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+}
+
+.features-subtitle {
+  font-size: clamp(15px, 1.6vw, 18px);
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   BENTO GRID
+   ============================================ */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto;
+  grid-template-areas:
+    "hero  hero  sec1"
+    "hero  hero  sec2"
+    "tert1 tert2 tert3";
+  gap: var(--gap);
+}
+
+/* ============================================
+   GLASSMORPHISM TILE BASE
+   ============================================ */
+.bento-tile {
+  position: relative;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: var(--radius);
+  box-shadow: var(--glass-shadow);
+  padding: 28px;
+  overflow: hidden;
+  cursor: default;
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition),
+    background var(--transition),
+    border-color var(--transition);
+
+  /* Entrance: hidden by default */
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.bento-tile.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 600ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow var(--transition),
+    background var(--transition),
+    border-color var(--transition);
+}
+
+.bento-tile:hover {
+  transform: translateY(-4px);
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+.bento-tile.is-visible:hover {
+  transform: translateY(-4px);
+}
+
+/* ============================================
+   TILE GRID PLACEMENT
+   ============================================ */
+.tile-hero     { grid-area: hero; }
+.tile-sec1     { grid-area: sec1; }
+.tile-sec2     { grid-area: sec2; }
+.tile-tert1    { grid-area: tert1; }
+.tile-tert2    { grid-area: tert2; }
+.tile-tert3    { grid-area: tert3; }
+
+/* ============================================
+   HERO TILE — ACCENT GLOW + MESH BG
+   ============================================ */
+.tile-hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 380px;
+}
+
+.tile-hero::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -20%;
+  width: 140%;
+  height: 140%;
+  background: radial-gradient(ellipse at 35% 30%, var(--accent-indigo-dim) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.tile-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: 0;
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.3) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.3) 100%);
+}
+
+.tile-hero > * { position: relative; z-index: 1; }
+
+/* ============================================
+   TILE ICON
+   ============================================ */
+.tile-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 18px;
+  flex-shrink: 0;
+}
+
+.tile-hero .tile-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  background: var(--accent-indigo-dim);
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+.tile-icon svg {
+  width: 22px;
+  height: 22px;
+  color: var(--text-secondary);
+  transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tile-hero .tile-icon svg {
+  width: 26px;
+  height: 26px;
+  color: var(--accent-indigo);
+}
+
+/* Icon entrance animations */
+.bento-tile.is-visible .icon-pulse svg    { animation: iconPulse 500ms 200ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.bento-tile.is-visible .icon-rotate svg   { animation: iconRotate 500ms 200ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.bento-tile.is-visible .icon-flash svg    { animation: iconFlash 600ms 200ms ease both; }
+.bento-tile.is-visible .icon-bounce svg   { animation: iconBounce 500ms 200ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.bento-tile.is-visible .icon-slide svg    { animation: iconSlide 500ms 200ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.bento-tile.is-visible .icon-scale svg    { animation: iconScale 500ms 200ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+@keyframes iconPulse {
+  0%   { transform: scaleY(0.6); opacity: 0; }
+  60%  { transform: scaleY(1.15); }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+@keyframes iconRotate {
+  0%   { transform: rotate(-20deg) scale(0.8); opacity: 0; }
+  60%  { transform: rotate(8deg) scale(1.05); }
+  100% { transform: rotate(0deg) scale(1); opacity: 1; }
+}
+@keyframes iconFlash {
+  0%   { opacity: 0; filter: brightness(1); }
+  40%  { opacity: 1; filter: brightness(2.2); }
+  100% { opacity: 1; filter: brightness(1); }
+}
+@keyframes iconBounce {
+  0%   { transform: translateY(8px); opacity: 0; }
+  50%  { transform: translateY(-4px); }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes iconSlide {
+  0%   { transform: translateX(-10px); opacity: 0; }
+  60%  { transform: translateX(3px); }
+  100% { transform: translateX(0); opacity: 1; }
+}
+@keyframes iconScale {
+  0%   { transform: scale(0.5); opacity: 0; }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ============================================
+   TILE CONTENT
+   ============================================ */
+.tile-heading {
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.tile-hero .tile-heading {
+  font-size: clamp(20px, 2.4vw, 24px);
+  margin-bottom: 10px;
+}
+
+.tile-description {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.tile-hero .tile-description {
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 380px;
+}
+
+/* Tertiary tiles: description revealed on hover */
+.tile-tertiary .tile-description {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  margin-top: 0;
+  transition: opacity 300ms ease, max-height 300ms ease, margin-top 300ms ease;
+}
+
+.tile-tertiary:hover .tile-description {
+  opacity: 1;
+  max-height: 60px;
+  margin-top: 8px;
+}
+
+/* ============================================
+   SECONDARY TILES — SUBTLE ACCENT BORDERS
+   ============================================ */
+.tile-sec1 .tile-icon {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.15);
+}
+.tile-sec1 .tile-icon svg { color: var(--accent-amber); }
+
+.tile-sec2 .tile-icon {
+  background: rgba(34, 197, 94, 0.08);
+  border-color: rgba(34, 197, 94, 0.15);
+}
+.tile-sec2 .tile-icon svg { color: #22c55e; }
+
+/* Tertiary icon accents */
+.tile-tert1 .tile-icon svg { color: #f472b6; }
+.tile-tert2 .tile-icon svg { color: #38bdf8; }
+.tile-tert3 .tile-icon svg { color: #a78bfa; }
+
+/* ============================================
+   HERO TILE — ANIMATED ORB
+   ============================================ */
+.hero-orb {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(99, 102, 241, 0.04) 50%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+  animation: orbFloat 8s ease-in-out infinite;
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(-12px, 8px) scale(1.05); }
+  66%      { transform: translate(8px, -6px) scale(0.95); }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 900px) {
+  .bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas:
+      "hero  hero"
+      "sec1  sec2"
+      "tert1 tert2"
+      "tert3 tert3";
+  }
+  .tile-hero { min-height: 300px; }
+  .features-section { padding: 60px 20px 80px; }
+}
+
+@media (max-width: 580px) {
+  .bento-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "hero"
+      "sec1"
+      "sec2"
+      "tert1"
+      "tert2"
+      "tert3";
+  }
+  .tile-hero { min-height: 260px; }
+  .bento-tile { padding: 22px; }
+  .features-section { padding: 48px 16px 64px; }
+  .features-header { margin-bottom: 36px; }
+}
+
+/* ============================================
+   AMBIENT BACKGROUND NOISE
+   ============================================ */
+.ambient-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 180px;
+}
+</style>
+</head>
+<body>
+
+<div class="ambient-grain" aria-hidden="true"></div>
+
+<section class="features-section">
+
+  <!-- HEADER -->
+  <div class="features-header">
+    <div class="features-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Core Architecture
+    </div>
+    <h2 class="features-title">Built for the end of the internet.</h2>
+    <p class="features-subtitle">Six hardened subsystems. Zero cloud dependencies. Every answer grounded in your knowledge base — not hallucinated from training data.</p>
+  </div>
+
+  <!-- BENTO GRID -->
+  <div class="bento-grid">
+
+    <!-- HERO TILE — RAG Pipeline -->
+    <div class="bento-tile tile-hero" data-delay="0">
+      <div class="hero-orb" aria-hidden="true"></div>
+      <div class="tile-icon icon-pulse">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <h3 class="tile-heading">RAG-Grounded Intelligence</h3>
+      <p class="tile-description">Every response is retrieved from your curated knowledge base — not generated from stale training data. Vector similarity search finds the exact passage, injects it as context, and the LLM cites its source. Zero hallucination by design.</p>
+    </div>
+
+    <!-- SECONDARY TILE 1 — Offline LLM Engine -->
+    <div class="bento-tile tile-sec1" data-delay="80">
+      <div class="tile-icon icon-flash">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      </div>
+      <h3 class="tile-heading">Offline LLM Engine</h3>
+      <p class="tile-description">Auto-selects the optimal model for your hardware. Llama 3.2 3B on 8GB machines, Qwen 3.5 9B with chain-of-thought reasoning on 16GB+ — all running locally via Ollama.</p>
+    </div>
+
+    <!-- SECONDARY TILE 2 — Knowledge Domains -->
+    <div class="bento-tile tile-sec2" data-delay="160">
+      <div class="tile-icon icon-bounce">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+          <line x1="9" y1="7" x2="16" y2="7"/>
+          <line x1="9" y1="11" x2="14" y2="11"/>
+        </svg>
+      </div>
+      <h3 class="tile-heading">Modular Knowledge Packs</h3>
+      <p class="tile-description">Six domain packs — medical, agriculture, engineering, comms, security, pharmacy — each installable and removable without rebuilding the application.</p>
+    </div>
+
+    <!-- TERTIARY TILE 1 — Vector Search -->
+    <div class="bento-tile tile-tertiary tile-tert1" data-delay="240">
+      <div class="tile-icon icon-rotate">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <h3 class="tile-heading">Semantic Vector Search</h3>
+      <p class="tile-description">768-dimension embeddings with LanceDB similarity matching across your entire knowledge base.</p>
+    </div>
+
+    <!-- TERTIARY TILE 2 — Air-Gapped -->
+    <div class="bento-tile tile-tertiary tile-tert2" data-delay="320">
+      <div class="tile-icon icon-scale">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+      </div>
+      <h3 class="tile-heading">Air-Gapped Security</h3>
+      <p class="tile-description">Zero network calls after setup. No telemetry, no cloud sync, no subscriptions. Fully sovereign.</p>
+    </div>
+
+    <!-- TERTIARY TILE 3 — Thinking Mode -->
+    <div class="bento-tile tile-tertiary tile-tert3" data-delay="400">
+      <div class="tile-icon icon-slide">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a8 8 0 0 0-8 8c0 3.4 2.1 6.3 5 7.5V20h6v-2.5c2.9-1.2 5-4.1 5-7.5a8 8 0 0 0-8-8z"/>
+          <line x1="10" y1="22" x2="14" y2="22"/>
+          <line x1="9" y1="14" x2="15" y2="14"/>
+        </svg>
+      </div>
+      <h3 class="tile-heading">Chain-of-Thought Reasoning</h3>
+      <p class="tile-description">Qwen 3.5 native thinking mode — visible reasoning chain before every answer on critical queries.</p>
+    </div>
+
+  </div>
+</section>
+
+<script>
+/* ============================================
+   INTERSECTION OBSERVER — STAGGERED ENTRANCE
+   ============================================ */
+(function() {
+  const tiles = document.querySelectorAll('.bento-tile');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const tile = entry.target;
+        const delay = parseInt(tile.dataset.delay || '0', 10);
+        setTimeout(() => {
+          tile.classList.add('is-visible');
+        }, delay);
+        observer.unobserve(tile);
+      }
+    });
+  }, {
+    threshold: 0.15,
+    rootMargin: '0px 0px -40px 0px'
+  });
+
+  tiles.forEach(tile => observer.observe(tile));
+})();
+</script>
+
+</body>
+</html>

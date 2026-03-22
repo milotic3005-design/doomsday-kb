@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"var fs=require('fs'); if(fs.existsSync('electron-builder.yml')){process.stdout.write(JSON.stringify({systemMessage:'Electron desktop app — no browser preview needed. Verify with: npm run typecheck && npm run build'}));}\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

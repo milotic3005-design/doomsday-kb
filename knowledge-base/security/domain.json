@@ -1,0 +1,8 @@
+{
+  "id": "security",
+  "name": "Security & Defense",
+  "description": "Perimeter defense, threat assessment, navigation, situational awareness",
+  "icon": "shield",
+  "priority": 5,
+  "documents": []
+}

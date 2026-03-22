@@ -1,0 +1,8 @@
+{
+  "id": "pharmacy",
+  "name": "Pharmacy & IV Preparation",
+  "description": "Drug stability, IV preparation, USP <797> BUD tables, drug reconstitution, dosage calculations",
+  "icon": "pill",
+  "priority": 6,
+  "documents": []
+}

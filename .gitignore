@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output
+out/
+release/
+dist/
+
+# Runtime data (vector store — generated on first launch)
+data/
+
+# Ollama bundled binaries (large; download separately)
+resources/ollama/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Editor
+.vscode/
+*.swp

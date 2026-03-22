@@ -1,0 +1,8 @@
+{
+  "id": "medical",
+  "name": "Medical & First Aid",
+  "description": "Emergency medical procedures, wound care, triage protocols, medication guides",
+  "icon": "medical-cross",
+  "priority": 1,
+  "documents": []
+}

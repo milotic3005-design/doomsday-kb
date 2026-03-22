@@ -1,0 +1,8 @@
+{
+  "id": "communications",
+  "name": "Communications",
+  "description": "Ham radio operation, morse code, signaling methods, antenna building",
+  "icon": "radio",
+  "priority": 4,
+  "documents": []
+}
