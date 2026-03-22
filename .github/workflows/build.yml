@@ -7,85 +7,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-mac:
-    name: Build macOS DMG
-    runs-on: macos-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Download Ollama for macOS
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          mkdir -p /tmp/ollama-dl resources/ollama
-          gh release download --repo ollama/ollama --pattern "ollama-darwin.tgz" -D /tmp/ollama-dl/
-          tar -xzf /tmp/ollama-dl/ollama-darwin.tgz -C resources/ollama/
-          # Make all extracted files executable
-          find resources/ollama -type f -exec chmod +x {} \;
-          echo "Ollama files:"
-          ls -lh resources/ollama/
-
-      - name: Generate macOS icon (icns)
-        run: |
-          mkdir -p resources
-          if [ -f "resources/icon.ico" ]; then
-            sips -s format png resources/icon.ico --out /tmp/icon.png 2>/dev/null || true
-          fi
-          if [ ! -f "/tmp/icon.png" ]; then
-            python3 -c "
-          import struct, zlib
-          def make_png(w, h, color):
-              raw = b''.join(bytes([0] + [color[0], color[1], color[2], 255] * w) for _ in range(h))
-              def chunk(t, d): c = zlib.crc32(t + d) & 0xffffffff; return struct.pack('>I', len(d)) + t + d + struct.pack('>I', c)
-              return b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 6, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
-          open('/tmp/icon.png','wb').write(make_png(512, 512, [255, 140, 0]))
-          "
-          fi
-          mkdir -p /tmp/icon.iconset
-          for size in 16 32 128 256 512; do
-            sips -z $size $size /tmp/icon.png --out /tmp/icon.iconset/icon_${size}x${size}.png
-            double=$((size * 2))
-            if [ $double -le 512 ]; then
-              sips -z $double $double /tmp/icon.png --out /tmp/icon.iconset/icon_${size}x${size}@2x.png
-            fi
-          done
-          iconutil -c icns /tmp/icon.iconset -o resources/icon.icns
-          echo "Icon: $(ls -lh resources/icon.icns)"
-
-      - name: Build Electron app
-        run: npm run build
-
-      - name: Package DMG (x64)
-        run: npx electron-builder --mac --x64
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
-
-      - name: Package DMG (arm64)
-        run: npx electron-builder --mac --arm64
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
-
-      - name: List release artifacts
-        run: ls -lh release/*.dmg || echo "No DMG files found"
-
-      - name: Upload DMGs
-        uses: actions/upload-artifact@v4
-        with:
-          name: doomsday-kb-mac
-          path: release/*.dmg
-          retention-days: 30
-
   build-windows:
     name: Build Windows Installer
     runs-on: windows-latest
@@ -102,11 +23,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      # Note: Ollama is NOT bundled in the Windows installer.
-      # ollama-windows-amd64.zip is 2 GB which exceeds the NSIS 2 GB limit.
-      # The app automatically falls back to system-installed Ollama at runtime.
-      # Users can install Ollama from https://ollama.ai
 
       - name: Build Electron app
         run: npm run build
@@ -125,7 +41,7 @@ jobs:
 
   release:
     name: Create GitHub Release
-    needs: [build-mac, build-windows]
+    needs: [build-windows]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:

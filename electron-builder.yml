@@ -4,8 +4,6 @@ directories:
   output: release
   buildResources: resources
 
-# Windows: no bundled Ollama (ollama-windows-amd64.zip is 2 GB; exceeds NSIS limit)
-# The app falls back to system Ollama automatically at runtime.
 win:
   target: nsis
   icon: resources/icon.ico
@@ -19,36 +17,6 @@ win:
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
-
-# macOS: bundle Ollama (ollama-darwin.tgz is 73 MB — fits fine)
-mac:
-  target:
-    - target: dmg
-      arch:
-        - x64
-        - arm64
-  icon: resources/icon.icns
-  category: public.app-category.utilities
-  darkModeSupport: true
-  extraResources:
-    - from: resources/ollama
-      to: ollama
-      filter:
-        - "**/*"
-    - from: knowledge-base
-      to: knowledge-base
-      filter:
-        - "**/*"
-
-dmg:
-  title: "Doomsday Knowledge Base"
-  contents:
-    - x: 130
-      y: 220
-    - x: 410
-      y: 220
-      type: link
-      path: /Applications
 
 files:
   - out/**/*
@@ -70,6 +38,4 @@ files:
 asar: true
 asarUnpack:
   - "node_modules/@lancedb/**"
-  - "node_modules/@lancedb/lancedb-darwin-x64-gnu/**"
-  - "node_modules/@lancedb/lancedb-darwin-arm64-gnu/**"
   - "node_modules/@lancedb/lancedb-win32-x64-msvc/**"
