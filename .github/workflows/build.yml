@@ -27,14 +27,17 @@ jobs:
       - name: Download Ollama for macOS
         run: |
           mkdir -p resources/ollama
-          curl -fsSL https://ollama.com/download/ollama-darwin -o resources/ollama/ollama
+          # Get latest release tag from GitHub API
+          OLLAMA_TAG=$(curl -fsSL https://api.github.com/repos/ollama/ollama/releases/latest | python3 -c "import sys,json; print(json.load(sys.stdin)['tag_name'])")
+          echo "Downloading Ollama $OLLAMA_TAG for macOS..."
+          curl -fsSL -o resources/ollama/ollama \
+            "https://github.com/ollama/ollama/releases/download/${OLLAMA_TAG}/ollama-darwin"
           chmod +x resources/ollama/ollama
-          echo "Ollama binary downloaded: $(ls -lh resources/ollama/ollama)"
+          echo "Downloaded: $(ls -lh resources/ollama/ollama)"
 
       - name: Generate macOS icon (icns)
         run: |
           mkdir -p resources
-          # Convert ICO to PNG, or create placeholder
           if [ -f "resources/icon.ico" ]; then
             sips -s format png resources/icon.ico --out /tmp/icon.png 2>/dev/null || true
           fi
@@ -52,12 +55,12 @@ jobs:
           for size in 16 32 128 256 512; do
             sips -z $size $size /tmp/icon.png --out /tmp/icon.iconset/icon_${size}x${size}.png
             double=$((size * 2))
-            if [ $double -le 1024 ]; then
+            if [ $double -le 512 ]; then
               sips -z $double $double /tmp/icon.png --out /tmp/icon.iconset/icon_${size}x${size}@2x.png
             fi
           done
           iconutil -c icns /tmp/icon.iconset -o resources/icon.icns
-          echo "Icon created: $(ls -lh resources/icon.icns)"
+          echo "Icon: $(ls -lh resources/icon.icns)"
 
       - name: Build Electron app
         run: npm run build
@@ -100,11 +103,15 @@ jobs:
         run: npm ci
 
       - name: Download Ollama for Windows
-        shell: bash
+        shell: pwsh
         run: |
-          mkdir -p resources/ollama
-          curl -fsSL https://ollama.com/download/ollama-windows-amd64.exe -o resources/ollama/ollama.exe
-          echo "Ollama binary downloaded: $(ls -lh resources/ollama/ollama.exe)"
+          New-Item -ItemType Directory -Force -Path resources/ollama | Out-Null
+          $release = Invoke-RestMethod "https://api.github.com/repos/ollama/ollama/releases/latest"
+          $tag = $release.tag_name
+          Write-Host "Downloading Ollama $tag for Windows..."
+          $url = "https://github.com/ollama/ollama/releases/download/$tag/ollama-windows-amd64.exe"
+          Invoke-WebRequest -Uri $url -OutFile "resources/ollama/ollama.exe" -UseBasicParsing
+          Write-Host "Downloaded: $((Get-Item resources/ollama/ollama.exe).Length / 1MB) MB"
 
       - name: Build Electron app
         run: npm run build
@@ -136,7 +143,7 @@ jobs:
           path: artifacts
 
       - name: List downloaded artifacts
-        run: find artifacts -type f | head -20
+        run: find artifacts -type f
 
       - name: Create Release
         uses: softprops/action-gh-release@v2

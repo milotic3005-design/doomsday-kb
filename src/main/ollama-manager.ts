@@ -7,17 +7,26 @@ let ollamaProcess: ChildProcess | null = null
 let isReady = false
 
 function getOllamaBinaryPath(): string {
+  const isWin = process.platform === 'win32'
+  const binaryName = isWin ? 'ollama.exe' : 'ollama'
+
   if (app.isPackaged) {
-    return path.join(process.resourcesPath, 'ollama', 'ollama.exe')
+    const bundled = path.join(process.resourcesPath, 'ollama', binaryName)
+    if (fs.existsSync(bundled)) return bundled
+    // Fall back to system Ollama if bundled binary not present
+    return 'ollama'
   }
-  // Dev mode: use system Ollama
-  const systemPath = path.join(
-    process.env.LOCALAPPDATA || '',
-    'Programs',
-    'Ollama',
-    'ollama.exe'
-  )
-  if (fs.existsSync(systemPath)) return systemPath
+
+  // Dev mode: check known Windows install path first, then fall back to PATH
+  if (isWin) {
+    const systemPath = path.join(
+      process.env.LOCALAPPDATA || '',
+      'Programs',
+      'Ollama',
+      'ollama.exe'
+    )
+    if (fs.existsSync(systemPath)) return systemPath
+  }
   return 'ollama' // fallback to PATH
 }
 
@@ -26,7 +35,8 @@ function getModelsPath(): string {
     return path.join(app.getPath('userData'), 'models')
   }
   // Dev mode: use default Ollama models location
-  return path.join(process.env.USERPROFILE || '', '.ollama', 'models')
+  const home = process.env.HOME || process.env.USERPROFILE || ''
+  return path.join(home, '.ollama', 'models')
 }
 
 export async function startOllama(): Promise<boolean> {
