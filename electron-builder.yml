@@ -10,6 +10,24 @@ win:
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
+mac:
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+  icon: resources/icon.icns
+  category: public.app-category.utilities
+  darkModeSupport: true
+dmg:
+  title: "Doomsday Knowledge Base"
+  contents:
+    - x: 130
+      y: 220
+    - x: 410
+      y: 220
+      type: link
+      path: /Applications
 extraResources:
   - from: resources/ollama
     to: ollama
@@ -38,5 +56,9 @@ files:
 asar: true
 asarUnpack:
   - "node_modules/@lancedb/**"
+  - "node_modules/@napi-rs/canvas-darwin-x64/**"
+  - "node_modules/@napi-rs/canvas-darwin-arm64/**"
+  - "node_modules/@lancedb/lancedb-darwin-x64-gnu/**"
+  - "node_modules/@lancedb/lancedb-darwin-arm64-gnu/**"
   - "node_modules/@lancedb/lancedb-win32-x64-msvc/**"
   - "node_modules/@napi-rs/canvas-win32-x64-msvc/**"
