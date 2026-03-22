@@ -18,37 +18,43 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Download Ollama for macOS
+        run: |
+          mkdir -p resources/ollama
+          curl -fsSL https://ollama.com/download/ollama-darwin -o resources/ollama/ollama
+          chmod +x resources/ollama/ollama
+          echo "Ollama binary downloaded: $(ls -lh resources/ollama/ollama)"
+
       - name: Generate macOS icon (icns)
         run: |
           mkdir -p resources
-          # Create a simple icon using sips if icon.ico exists, otherwise use a placeholder
+          # Convert ICO to PNG, or create placeholder
           if [ -f "resources/icon.ico" ]; then
-            # Convert ICO → PNG → ICNS
             sips -s format png resources/icon.ico --out /tmp/icon.png 2>/dev/null || true
           fi
-          # Fallback: create a minimal placeholder icon
           if [ ! -f "/tmp/icon.png" ]; then
             python3 -c "
           import struct, zlib
           def make_png(w, h, color):
               raw = b''.join(bytes([0] + [color[0], color[1], color[2], 255] * w) for _ in range(h))
               def chunk(t, d): c = zlib.crc32(t + d) & 0xffffffff; return struct.pack('>I', len(d)) + t + d + struct.pack('>I', c)
-              return b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
+              return b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 6, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw)) + chunk(b'IEND', b'')
           open('/tmp/icon.png','wb').write(make_png(512, 512, [255, 140, 0]))
           "
           fi
-          # Build .icns from PNG
           mkdir -p /tmp/icon.iconset
-          for size in 16 32 64 128 256 512; do
+          for size in 16 32 128 256 512; do
             sips -z $size $size /tmp/icon.png --out /tmp/icon.iconset/icon_${size}x${size}.png
             double=$((size * 2))
-            sips -z $double $double /tmp/icon.png --out /tmp/icon.iconset/icon_${size}x${size}@2x.png
+            if [ $double -le 1024 ]; then
+              sips -z $double $double /tmp/icon.png --out /tmp/icon.iconset/icon_${size}x${size}@2x.png
+            fi
           done
           iconutil -c icns /tmp/icon.iconset -o resources/icon.icns
           echo "Icon created: $(ls -lh resources/icon.icns)"
@@ -67,20 +73,13 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: List release artifacts
-        run: ls -lh release/*.dmg
+        run: ls -lh release/*.dmg || echo "No DMG files found"
 
-      - name: Upload DMG (x64 — Intel Mac)
+      - name: Upload DMGs
         uses: actions/upload-artifact@v4
         with:
-          name: doomsday-kb-mac-x64
-          path: release/*x64*.dmg
-          retention-days: 30
-
-      - name: Upload DMG (arm64 — Apple Silicon)
-        uses: actions/upload-artifact@v4
-        with:
-          name: doomsday-kb-mac-arm64
-          path: release/*arm64*.dmg
+          name: doomsday-kb-mac
+          path: release/*.dmg
           retention-days: 30
 
   build-windows:
@@ -94,11 +93,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Download Ollama for Windows
+        shell: bash
+        run: |
+          mkdir -p resources/ollama
+          curl -fsSL https://ollama.com/download/ollama-windows-amd64.exe -o resources/ollama/ollama.exe
+          echo "Ollama binary downloaded: $(ls -lh resources/ollama/ollama.exe)"
 
       - name: Build Electron app
         run: npm run build
@@ -106,7 +112,7 @@ jobs:
       - name: Package NSIS installer
         run: npx electron-builder --win
         env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
 
       - name: Upload Windows installer
         uses: actions/upload-artifact@v4
@@ -120,12 +126,17 @@ jobs:
     needs: [build-mac, build-windows]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
 
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+
+      - name: List downloaded artifacts
+        run: find artifacts -type f | head -20
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
