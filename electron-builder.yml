@@ -3,13 +3,24 @@ productName: Doomsday Knowledge Base
 directories:
   output: release
   buildResources: resources
+
+# Windows: no bundled Ollama (ollama-windows-amd64.zip is 2 GB; exceeds NSIS limit)
+# The app falls back to system Ollama automatically at runtime.
 win:
   target: nsis
   icon: resources/icon.ico
   signAndEditExecutable: false
+  extraResources:
+    - from: knowledge-base
+      to: knowledge-base
+      filter:
+        - "**/*"
+
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
+
+# macOS: bundle Ollama (ollama-darwin.tgz is 73 MB — fits fine)
 mac:
   target:
     - target: dmg
@@ -19,6 +30,16 @@ mac:
   icon: resources/icon.icns
   category: public.app-category.utilities
   darkModeSupport: true
+  extraResources:
+    - from: resources/ollama
+      to: ollama
+      filter:
+        - "**/*"
+    - from: knowledge-base
+      to: knowledge-base
+      filter:
+        - "**/*"
+
 dmg:
   title: "Doomsday Knowledge Base"
   contents:
@@ -28,15 +49,7 @@ dmg:
       y: 220
       type: link
       path: /Applications
-extraResources:
-  - from: resources/ollama
-    to: ollama
-    filter:
-      - "**/*"
-  - from: knowledge-base
-    to: knowledge-base
-    filter:
-      - "**/*"
+
 files:
   - out/**/*
   - node_modules/**/*
@@ -53,12 +66,10 @@ files:
   - "!node_modules/tailwindcss/**"
   - "!node_modules/@tailwindcss/**"
   - "!node_modules/concurrently/**"
+
 asar: true
 asarUnpack:
   - "node_modules/@lancedb/**"
-  - "node_modules/@napi-rs/canvas-darwin-x64/**"
-  - "node_modules/@napi-rs/canvas-darwin-arm64/**"
   - "node_modules/@lancedb/lancedb-darwin-x64-gnu/**"
   - "node_modules/@lancedb/lancedb-darwin-arm64-gnu/**"
   - "node_modules/@lancedb/lancedb-win32-x64-msvc/**"
-  - "node_modules/@napi-rs/canvas-win32-x64-msvc/**"

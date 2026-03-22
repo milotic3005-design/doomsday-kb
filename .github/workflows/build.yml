@@ -103,16 +103,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Download Ollama for Windows
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          mkdir -p /tmp/ollama-dl resources/ollama
-          gh release download --repo ollama/ollama --pattern "ollama-windows-amd64.zip" -D /tmp/ollama-dl/
-          unzip /tmp/ollama-dl/ollama-windows-amd64.zip -d resources/ollama/
-          echo "Ollama files:"
-          ls -lh resources/ollama/
+      # Note: Ollama is NOT bundled in the Windows installer.
+      # ollama-windows-amd64.zip is 2 GB which exceeds the NSIS 2 GB limit.
+      # The app automatically falls back to system-installed Ollama at runtime.
+      # Users can install Ollama from https://ollama.ai
 
       - name: Build Electron app
         run: npm run build
